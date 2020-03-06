@@ -1,61 +1,58 @@
-#include <stdio.h>
-#define N 10
-#define C 10
-#define col 5
-
 void FillArr(int arr[N][C])
 {
-    srandom(time(NULL));
-    for (int i=0;i<N;i++)
-    {
-      for (int j=0;j<C;j++)
-      {
-         arr[i][j]=0;
-      }
-    }
-    for (int i=1;i<N;i++)
-    {
-      for (int j=1;j<C;j++)
-      {
-        arr[i][j]=rand()%2;
-      }
-    }
-for (int i=0;i<C;i++) {arr[0][i]=1;} 
-for (int i=0;i<C;i++) {arr[N-1][i]=1;} 
-for (int i=0;i<N;i++) {arr[i][0]=1;}
-for (int i=0;i<N;i++) {arr[i][C-1]=1;}
+srandom(time(0));
+for (int i=0;i<N;i++)
+{
+for (int j=0;j<C;j++)
+{
+arr[i][j]=1;
+}
+}
+
+for (int i=1;i<N-1;i++)
+{
+for (int j=1;j<C-1;j++)
+{
+arr[i][j]=rand()%2 ? rand()%2 : 0;
+}
+}
+
 }
 void PrintArr(int arr[N][C])
 {
-    for (int i=0;i<N;i++)
-    {
-      for (int j=0;j<C;j++)
-      {
-         printf("%d ",arr[i][j]);
-      }
-      printf("\n");
-    }
-}
-void PaintArr(int arr[N][C],int x,int y)
+for (int i=0;i<N;i++)
 {
-    if (x>0 && y>0 && x<N-1 && y<C-1) {
-        int t=arr[x][y];
-        arr[x][y]=col;
-        if (arr[x][y-1]==t) arr[x][y-1]=col; 
-        if (arr[x][y+1]==t) arr[x][y+1]=col; 
-        if (arr[x-1][y]==t) arr[x-1][y]=col; 
-        if (arr[x+1][y]==t) arr[x+1][y]=col; 
-    }
-}
-int main(void) 
+for (int j=0;j<C;j++)
 {
-    int x,y;
-    int mass[N][C];
-    FillArr(mass);
-    PrintArr(mass);
-    scanf("%d", &x);x--;
-    scanf("%d", &y);y--;
-    PaintArr(mass,x,y);
-    PrintArr(mass);
-    
+printf("%d ",arr[i][j]);
+}
+printf("\n");
+}
+}
+void PaintArr(int arr[N][C],int start,int x,int y)
+{
+if(arr[x][y] == start && x>0 && y>0 && x<N-1 && y<C-1)
+{
+arr[x][y]=col;
+PaintArr(arr,start,x,y+1);
+arr[x][y]=col;
+PaintArr(arr,start,x,y-1);
+arr[x][y]=col;
+PaintArr(arr,start,x+1,y);
+arr[x][y]=col;
+PaintArr(arr,start,x-1,y);
+}
+
+}
+int main(void)
+{
+int x,y;
+int mass[N][C];
+FillArr(mass);
+PrintArr(mass);
+scanf("%d", &x);
+scanf("%d", &y);
+int start=mass[x][y];
+PaintArr(mass,start,x,y);
+PrintArr(mass);
 }
