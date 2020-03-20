@@ -1,0 +1,75 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+#include <malloc.h>
+#define for_i for(int i = 0; i < n; i++)
+#define SWAP(A, B) { int t = A; A = B; B = t; }
+
+typedef struct
+{
+ int a;
+ int pos;
+}cell;
+void PrintStr(int n, cell* arr)
+{
+for (int i = 0; i < n; i++)
+{
+printf("%d ", arr[i].a);
+}
+printf("\n");
+}
+void PrintStrNumber(int n, cell* arr)
+{
+for (int i = 0; i < n; i++)
+{
+printf("%d ", arr[i].pos);
+}
+printf("\n");
+}
+void BubbleSort(cell* a, int n)
+{
+  int j, nn;
+  do {
+    nn = 0;
+    for (j = 1; j < n; ++j)
+     if (a[j-1].a > a[j].a) {
+        SWAP( a[j-1].a, a[j].a);
+        SWAP( a[j-1].pos, a[j].pos);
+        nn = j;
+      }
+    n = nn;
+ } while (n);
+}
+int main()
+{
+int n = 10;
+cell *arr = (cell*)malloc(n * sizeof(cell));
+arr[0].a = 6;
+arr[0].pos = 0;
+arr[1].a = 2;
+arr[1].pos = 1;
+arr[2].a = 5;
+arr[2].pos = 2;
+arr[3].a = 4;
+arr[3].pos = 3;
+arr[4].a = 1;
+arr[4].pos = 4;
+arr[5].a = 2;
+arr[5].pos = 5;
+arr[6].a = 0;
+arr[6].pos = 6;
+arr[7].a = 2;
+arr[7].pos = 7;
+arr[8].a = 6;
+arr[8].pos = 8;
+arr[9].a = 3;
+arr[9].pos = 9;
+PrintStr(n, arr);
+PrintStrNumber(n,arr);
+BubbleSort(arr,n);
+printf("\n");
+PrintStr(n, arr);
+PrintStrNumber(n,arr);
+getchar();
+free(arr);
+}
