@@ -1,7 +1,5 @@
-#include <stdlib.h>
+
 #include <stdio.h>
-#include <conio.h>
-#include <malloc.h>
 #define for_i for(int i = 0; i < n; i++)
 #define SWAP(A, B) { int t = A; A = B; B = t; }
 
