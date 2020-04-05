@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 typedef struct  //структура для для
 {
@@ -139,6 +140,53 @@ static int pix(int value, int max)
 
 //
 
+void DrawAndSave(pair arr[], int n,int num) // массив, колво, номер для сохранения
+{
+    bitmap_t fruit;
+    fruit.width = 100;
+    fruit.height = 100;
+    fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
+    int y;
+    int x;
+    int xx1 = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (y = 0; y < arr[i].val * 4; y++)
+        {
+            for (x = 0; x < 8; x++)
+            {
+                x = x + xx1;
+                pixel_t* pixel = pixel_at(&fruit, x, y);
+                pixel->green = 100;
+                pixel->blue = 0;
+                pixel->red = 0;
+                pixel->alpha = pix(99, fruit.width);
+                x = x - xx1;
+            }
+        }
+        xx1 += 17;
+    }
+    const char* name[5];
+    char png[] = { ".png" };
+    name[0] = '0' + num;
+    strcat(name, png);
+    save_png_to_file(&fruit, name);
+
+    for (y = 0; y < fruit.height; y++)
+    {
+        for (x = 0; x < fruit.width; x++)
+        {
+
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 255;
+            pixel->blue = 255;
+            pixel->red = 255;
+            pixel->alpha = pix(99, fruit.width);
+
+        }
+
+    }
+}
 
 
 
@@ -176,15 +224,6 @@ int partition(pair arr[], int l, int h)
 
 void quickSort(pair A[], int l, int h)   // l=0; h = длинна -1
 {
-    bitmap_t fruit;
-    fruit.width = 100;
-    fruit.height = 100;
-    fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
-    int y;
-    int x;
-    int xx1 = 0;
-    int n = 6;
-    pair* arr = (pair*)malloc(n * sizeof(pair));
     if (l < h) 
     {
         /* Partitioning index */
@@ -192,27 +231,8 @@ void quickSort(pair A[], int l, int h)   // l=0; h = длинна -1
         quickSort(A, l, p - 1);
         quickSort(A, p + 1, h);
     }
-    for (int i = 0; i < n; i++)
-    {
-
-        for (y = 0; y < arr[i].val * 4; y++)
-        {
-            for (x = 0; x < 8; x++)
-            {
-                x = x + xx1;
-                pixel_t* pixel = pixel_at(&fruit, x, y);
-                pixel->green = 100;
-                pixel->blue = 0;
-                pixel->red = 0;
-                pixel->alpha = pix(99, fruit.width);
-                x = x - xx1;
-            }
-
-        }
-        xx1 += 17;
-    }
-    save_png_to_file(&fruit, "fruit1.png");
 }
+
 
 
 int main()
@@ -230,6 +250,8 @@ int main()
 
     
     
+    
+    
 
       
     int n = 6;
@@ -245,6 +267,11 @@ int main()
     {
         arr[i].key = i;
     }
+
+    DrawAndSave(arr, n,1);
+    
+
+
     quickSort(arr, 0, n - 1);
 
     for (int i = 0; i < n; i++) {
@@ -254,6 +281,9 @@ int main()
     for (int i = 0; i < n; i++) {
         printf("%d ", arr[i].key);
     }
+    //
+    DrawAndSave(arr, n, 2);
+
     free(arr);
     return 0;
 }
