@@ -139,24 +139,24 @@ static int pix(int value, int max)
 void DrawAndSave(pair arr[], int n,int num) // массив, колво, номер для сохранения
 {
     bitmap_t fruit;
-    fruit.width = 100;
-    fruit.height = 100;
+    fruit.width = 20*n;
+    fruit.height = 20*n;
     fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
     int y;
     int x;
     int xx1 = 0;
     for (int i = 0; i < n; i++)
     {
-        for (y = 0; y < arr[i].val * 4; y++)
+        for (y =100 - arr[i].val*4; y < 100; y++)
         {
             for (x = 0; x < 8; x++)
             {
-                x = x + xx1;
+                x += xx1;
                 pixel_t* pixel = pixel_at(&fruit, x, y);
                 pixel->green = 100;
                 pixel->blue = 0;
                 pixel->red = 0;
-                pixel->alpha = pix(99, fruit.width);
+                pixel->alpha = pix(99, 100);
                 x = x - xx1;
             }
         }
@@ -230,25 +230,28 @@ void quickSort(pair A[], int l, int h)   // l=0; h = длинна -1
 }
 
 
+
 int main()
 {
-
+    printf("Enter the number of numbers\n");
+    int n;
+    scanf("%d", &n);
     bitmap_t fruit;
-    fruit.width = 100;
-    fruit.height = 100;
+    fruit.width = 20*n;
+    fruit.height = 20*n;
     fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
     int y ;
     int x ;
+    int number;
     int xx1 = 0;
     int xx2 = 0;
-    int n = 6;
     pair * arr = (pair*)malloc(n * sizeof(pair));
-    arr[0].val = 10;
-    arr[1].val = 20;
-    arr[2].val = 2;
-    arr[3].val = 7;
-    arr[4].val = 2;
-    arr[5].val = 6;
+    puts("Enter the numbers");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &number);
+        arr[i].val = number;
+    }
 
     for (int i = 0; i < n; i++)
     {
