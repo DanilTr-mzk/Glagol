@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
+
 typedef struct  //структура для для
 {
     int key;
@@ -136,54 +137,70 @@ static int pix(int value, int max)
 
 //
 
-void DrawAndSave(pair arr[], int n,int num) // массив, колво, номер для сохранения
+void DrawAndSave(pair arr[], int n) // массив, колво, номер для сохранения
 {
     bitmap_t fruit;
-    fruit.width = 100;
-    fruit.height = 100;
+    static int num=0;
+    static int num1=0;
+    fruit.width = 20*n;
+    fruit.height = 20*n;
     fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
     int y;
     int x;
     int xx1 = 0;
     for (int i = 0; i < n; i++)
     {
-        for (y = 0; y < arr[i].val * 4; y++)
+        for (y =100 - arr[i].val*4; y < 100; y++)
         {
             for (x = 0; x < 8; x++)
             {
-                x = x + xx1;
+                x += xx1;
                 pixel_t* pixel = pixel_at(&fruit, x, y);
                 pixel->green = 100;
                 pixel->blue = 0;
                 pixel->red = 0;
-                pixel->alpha = pix(99, fruit.width);
+                pixel->alpha = pix(99, 100);
                 x = x - xx1;
             }
         }
         xx1 += 17;
     }
     const char* name[5];
+    const char* surname[5];
     char png[] = { ".png" };
     name[0] = '0' + num;
-    strcat(name, png);
-    save_png_to_file(&fruit, name);
+    surname[0] = '0';
+   if (num > 9) 
+    {
+        num1++;
+        num = num -10;
+        surname[0] = '0' + num1;
+        name[0] = '0' + num;
+        strcat(surname, name);
+        strcat(surname, png);
+        save_png_to_file(&fruit, surname);
+    }
+    else
+    {
+       surname[0] = '0' + num1;
+        strcat(surname, name);
+        strcat(surname, png);
+        save_png_to_file(&fruit, surname);
+    }
 
     for (y = 0; y < fruit.height; y++)
     {
         for (x = 0; x < fruit.width; x++)
         {
-
             pixel_t* pixel = pixel_at(&fruit, x, y);
             pixel->green = 255;
             pixel->blue = 255;
             pixel->red = 255;
-            pixel->alpha = pix(99, fruit.width);
-
         }
 
     }
+    num++;
 }
-
 
 
 
@@ -200,63 +217,64 @@ void swap(int* a, int* b)
    all smaller (smaller than pivot) to left
    of pivot and all greater elements to
    right of pivot */
-int partition(pair arr[], int l, int h)
+int partition(pair arr[], int l, int h, int n)
 {
     int x = arr[h].val;
     int i = (l - 1);
-
     for (int j = l; j <= h - 1; j++) {
         if (arr[j].val <= x) {
             i++;
             swap(&arr[i].val, &arr[j].val);
             swap(&arr[i].key, &arr[j].key);
+            DrawAndSave(arr, n);
         }
     }
     swap(&arr[i + 1].val, &arr[h].val);
     swap(&arr[i + 1].key, &arr[h].key);
     return (i + 1);
+    DrawAndSave(arr, n );
 }
 
 
-void quickSort(pair A[], int l, int h)   // l=0; h = длинна -1
+void quickSort(pair A[], int l, int h,int n)   // l=0; h = n -1
 {
+
     if (l < h) 
     {
-        /* Partitioning index */
-        int p = partition(A, l, h);
-        quickSort(A, l, p - 1);
-        quickSort(A, p + 1, h);
+        DrawAndSave(A, n);
+        int p = partition(A, l, h,n);
+        quickSort(A, l, p - 1,n);
+        DrawAndSave(A, n);
+        quickSort(A, p + 1, h,n);
+        DrawAndSave(A, n);
     }
 }
 
 
+
 int main()
 {
-
+    printf("Enter the number of numbers\n");
+    int n;
+    scanf("%d", &n);
     bitmap_t fruit;
-    fruit.width = 100;
-    fruit.height = 100;
+    fruit.width = 20*n;
+    fruit.height = 20*n;
     fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
-    int y ;
-    int x ;
-    int xx1 = 0;
-    int xx2 = 0;
-    int n = 6;
+    int number;
     pair * arr = (pair*)malloc(n * sizeof(pair));
-    arr[0].val = 10;
-    arr[1].val = 20;
-    arr[2].val = 2;
-    arr[3].val = 7;
-    arr[4].val = 2;
-    arr[5].val = 6;
+    puts("Enter the numbers");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &number);
+        arr[i].val = number;
+    }
 
     for (int i = 0; i < n; i++)
     {
         arr[i].key = i;
     }
-
-    DrawAndSave(arr, n,1);
-    quickSort(arr, 0, n - 1);
+    quickSort(arr, 0, n - 1,n);
     for (int i = 0; i < n; i++) {
         printf("%d ", arr[i].val);
     }
@@ -264,8 +282,6 @@ int main()
     for (int i = 0; i < n; i++) {
         printf("%d ", arr[i].key);
     }
-    DrawAndSave(arr, n, 2);
-
     free(arr);
     return 0;
 }
