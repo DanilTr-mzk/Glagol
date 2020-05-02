@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+void print_menu(int argc)
+{
+    printf("Program for quick sort visualization.\n");
+    printf("General options :\n");
+    printf("\t-n[--number]            Number of values to sort\n");
+    printf("\t-s[--size]              Box size for each value(in pixels)\n");
+    printf("\t-p[--path]              Path to directory for saving frames for animation\n");
+    printf("\t-o[--order]             Demonstrate stability or not\n");
+    printf("\t-c[--complexity]        Print number of swaps / comparisions\n");
+    printf("\t-h[--help]              Show help\n");
+}
+int main(int argc, char* argv[])
+{
+    if (argc == 1)
+    {
+        print_menu(argc);
+    }
+    else if (argc == 2)
+    {
+        print_menu(argc);
+    }
+    else
+    {
+        char number_str[] = "-number";
+        char n_str[] = "-n";
+        int i, n = -1;
+        for (i = 0; i < argc - 1; i++)
+        {
+            if (!strcmp(n_str, argv[i]) || !strcmp(number_str, argv[i]))
+            {
+                n=atoi(argv[i+1]);
+                    if(n<=1 || n>100)
+                    {
+                        printf("Provided n is not appropriate!\n ");
+                        return 0;
+                    }
+                    else
+                    {
+                        printf("n=%d is set!\n", n);
+                    }
+                    if (n < 0)
+                    {
+                        printf("n is not set!\n");
+                        return 0;
+                    }
+            }
+        }
+    }
+}
