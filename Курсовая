@@ -203,6 +203,15 @@ void DrawAndSave(pair arr[], int n) // массив, колво, номер дл
 }
 
 
+void print_menu(int argc)
+{
+    printf("Program for quick sort visualization.\n");
+    printf("General options :\n");
+    printf("\t-n[--number]            Number of values to sort\n");
+    printf("\t-p[--path]              Path to directory for saving frames for animation\n");
+    printf("\t-o[--order]             Demonstrate stability or not\n");
+    printf("\t-h[--help]              Show help\n");
+}
 
 void swap(int* a, int* b)
 {
@@ -210,7 +219,6 @@ void swap(int* a, int* b)
     *a = *b;
     *b = temp;
 }
-
 /* This function takes last element as pivot,
    places the pivot element at its correct
    position in sorted  array, and places
@@ -234,54 +242,71 @@ int partition(pair arr[], int l, int h, int n)
     return (i + 1);
     DrawAndSave(arr, n );
 }
-
-
-void quickSort(pair A[], int l, int h,int n)   // l=0; h = n -1
+void quickSort(pair A[], int l, int h, int n)   // l=0; h = n -1
 {
-
-    if (l < h) 
+    if (l < h)
     {
+        //DrawAndSave(A, n);
+        int p = partition(A, l, h, n);
+        quickSort(A, l, p - 1, n);
         DrawAndSave(A, n);
-        int p = partition(A, l, h,n);
-        quickSort(A, l, p - 1,n);
-        DrawAndSave(A, n);
-        quickSort(A, p + 1, h,n);
+        quickSort(A, p + 1, h, n);
         DrawAndSave(A, n);
     }
 }
-
-
-
-int main()
+int main(int argc, char* argv[])
 {
-    printf("Enter the number of numbers\n");
-    int n;
-    scanf("%d", &n);
-    bitmap_t fruit;
-    fruit.width = 20*n;
-    fruit.height = 20*n;
-    fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
-    int number;
-    pair * arr = (pair*)malloc(n * sizeof(pair));
-    puts("Enter the numbers");
-    for (int i = 0; i < n; i++)
-    {
-        scanf("%d", &number);
-        arr[i].val = number;
-    }
 
-    for (int i = 0; i < n; i++)
-    {
-        arr[i].key = i;
-    }
-    quickSort(arr, 0, n - 1,n);
-    for (int i = 0; i < n; i++) {
-        printf("%d ", arr[i].val);
-    }
     printf("\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d ", arr[i].key);
+    if (argc == 1)
+    {
+        print_menu(argc);
     }
-    free(arr);
-    return 0;
+     else if (argc == 2)
+     {
+        print_menu(argc);
+     }
+    else
+    {
+        char number_str[] = "-number";
+        char n_str[] = "-n";
+        int i, n = -1;
+        for (i = 0; i < argc - 1; i++)
+        {
+            if (!strcmp(n_str, argv[i]) || !strcmp(number_str, argv[i]))
+            {
+                n = atoi(argv[i + 1]);
+                if (n <= 1 || n > 100)
+                {
+                    printf("Provided n is not appropriate!\n ");
+                    return 0;
+                }
+                else
+                {
+                    printf("n = %d is set!\nArray is filled with random numbers from 1 to %d\n", n,n);
+                }
+                if (n < 0)
+                {
+                    printf("n is not set!\n");
+                    return 0;
+                }
+            }
+        }
+        srand(time(NULL));
+        bitmap_t fruit;
+        fruit.width = 20 * n;
+        fruit.height = 20 * n;
+        fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
+        pair* arr = (pair*)malloc(n * sizeof(pair));
+        for (int i = 0; i < n; i++)
+        {
+            arr[i].val = (rand()%(n))+1;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            arr[i].key = i;
+        }
+        quickSort(arr, 0, n - 1, n);
+        free(arr);
+    }
 }
