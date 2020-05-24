@@ -268,6 +268,8 @@ int main(int argc, char* argv[])
      }*/
     else
     {
+        char help_str[] = "--help";
+        char h_str[] = "-h";
         char number_str[] = "--number";
         char n_str[] = "-n";
         char path_str[] = "--path";
@@ -351,6 +353,13 @@ int main(int argc, char* argv[])
             if (!strcmp(p_str, argv[i]) || !strcmp(path_str, argv[i]))
             {
                 printf("Path: C:/Users/komp/source/repos/Project2/Debug\n");
+            }
+        }
+        for (i = 0; i < argc; i++)
+        {
+            if (!strcmp(h_str, argv[i]) || !strcmp(help_str, argv[i]))
+            {
+                printf("Course work\nTroshkov 1141\n Thi is a random number sorting visualization program\n");
             }
         }
     }
