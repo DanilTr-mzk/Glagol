@@ -143,7 +143,7 @@ void DrawAndSave(pair arr[], int n, colour col[]) // массив, колво
     int xx1 = 0;
     for (int i = 0; i < n; i++)
     {
-        for (y =100 - arr[i].val*4; y < 100; y++)
+        for (y =fruit.height - arr[i].val*4; y < fruit.height; y++)
         {
             for (x = 0; x < 8; x++)
             {
@@ -202,10 +202,10 @@ void print_menu(int argc)
 {
     printf("Program for quick sort visualization.\n");
     printf("General options :\n");
-    printf("\t-n[--number]          Number of values to sort\n");
-    printf("\t-p[--path]            Path to directory for saving frames for animation\n");
-    printf("\t-o[--order]           Demonstrate stability or not\n");
-    printf("\t-h[--help]            Show help\n");
+    printf("\t-n[--number](from than 3)  Number of values to sort\n");
+    printf("\t-p[--path]                 Path to directory for saving frames for animation\n");
+    printf("\t-o[--order]                Demonstrate stability or not\n");
+    printf("\t-h[--help]                 Show help\n");
 }
 
 void swap(int* a, int* b)
@@ -214,12 +214,29 @@ void swap(int* a, int* b)
     *a = *b;
     *b = temp;
 }
-/* This function takes last element as pivot,
-   places the pivot element at its correct
-   position in sorted  array, and places
-   all smaller (smaller than pivot) to left
-   of pivot and all greater elements to
-   right of pivot */
+
+void FixStable(pair arr[], int n, colour col[])   //Не всегда устойчиво было
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arr[i].val == arr[j].val && arr[i].key > arr[j].key)
+            {
+                swap(&arr[i].val, &arr[j].val);
+                swap(&arr[i].key, &arr[j].key);
+                swap(&col[i].green, &col[j].green);
+                swap(&col[i].blue, &col[j].blue);
+                swap(&col[i].red, &col[j].red);
+            }
+        }
+    }
+}
+/* Эта функция принимает последний элемент в качестве основного,
+помещает основной элемент  в правильное положение
+ в отсортированном массиве, а все элементы
+что меньше (меньше, чем основной) слева
+от основного, а  большие элементы справа*/
 int partition(pair arr[], int l, int h, int n, colour col[])
 {
     int x = arr[h].val;
@@ -247,11 +264,11 @@ void quickSort(pair A[], int l, int h, int n,colour col[])   // l=0; h = n -1
 {
     if (l < h)
     {
-        //DrawAndSave(A, n);
         int p = partition(A, l, h, n, col);
         quickSort(A, l, p - 1, n,col);
         quickSort(A, p + 1, h, n,col);
-        //DrawAndSave(A, n);
+        FixStable(A, n, col);
+        DrawAndSave(A, n, col);
     }
 }
 int main(int argc, char* argv[])
@@ -262,10 +279,6 @@ int main(int argc, char* argv[])
     {
         print_menu(argc);
     }
-     /*else if (argc == 2)
-     {
-        print_menu(argc);
-     }*/
     else
     {
         char help_str[] = "--help";
@@ -339,14 +352,22 @@ int main(int argc, char* argv[])
                     col[j].green = green;
                     col[j].red = red;
                     
-                }
-                
+                }     
             }
             green += 15;
             red -= 15;
             blue -= 15;
         }
+        for (int i = 0; i < n; i++)
+        {
+            printf(" %d", arr[i].key);
+        }
         quickSort(arr, 0, n - 1, n,col);
+        printf("\n");
+        for (int i = 0; i < n; i++)
+        {
+            printf(" %d", arr[i].key);
+        }
         free(arr);
         for (i = 0; i < argc; i++)
         {
@@ -359,7 +380,8 @@ int main(int argc, char* argv[])
         {
             if (!strcmp(h_str, argv[i]) || !strcmp(help_str, argv[i]))
             {
-                printf("Course work\nTroshkov 1141\n Thi is a random number sorting visualization program\n");
+                printf("Course work\nTroshkov 1141\nThis is a random number sorting visualization program\n");
+                printf("Your input should look like: Project2.exe -n 5\n");
             }
         }
     }
