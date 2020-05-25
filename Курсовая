@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <string.h>
 
-
 typedef struct  //структура для для
 {
     int key;
@@ -202,10 +201,10 @@ void print_menu(int argc)
 {
     printf("Program for quick sort visualization.\n");
     printf("General options :\n");
-    printf("\t-n[--number](from than 3)  Number of values to sort\n");
-    printf("\t-p[--path]                 Path to directory for saving frames for animation\n");
-    printf("\t-o[--order]                Demonstrate stability or not\n");
-    printf("\t-h[--help]                 Show help\n");
+    printf("\t-n[--number](from 3 to 25)  Number of values to sort\n");
+    printf("\t-p[--path]                  Path to directory for saving frames for animation\n");
+    printf("\t-o[--order]                 Demonstrate stability or not\n");
+    printf("\t-h[--help]                  Show help\n");
 }
 
 void swap(int* a, int* b)
@@ -215,7 +214,7 @@ void swap(int* a, int* b)
     *b = temp;
 }
 
-void FixStable(pair arr[], int n, colour col[])   //Не всегда устойчиво было
+void FixStable(pair arr[], int n, colour col[])   //Проверка устойчивости
 {
     for (int i = 0; i < n; i++)
     {
@@ -343,6 +342,12 @@ int main(int argc, char* argv[])
         int red = 100;
         for (int i = 0; i < n - 1; i++)
         {
+            if (green == 100)
+            {
+                green = 0;
+                blue = 100;
+                red = 100;
+            }
             for (int j = i + 1; j < n; j++)
             {
                 if (arr[i].val == arr[j].val)
@@ -358,16 +363,7 @@ int main(int argc, char* argv[])
             red -= 15;
             blue -= 15;
         }
-        for (int i = 0; i < n; i++)
-        {
-            printf(" %d", arr[i].key);
-        }
         quickSort(arr, 0, n - 1, n,col);
-        printf("\n");
-        for (int i = 0; i < n; i++)
-        {
-            printf(" %d", arr[i].key);
-        }
         free(arr);
         for (i = 0; i < argc; i++)
         {
