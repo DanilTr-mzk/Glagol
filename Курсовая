@@ -68,7 +68,6 @@ static int save_png_to_file(bitmap_t* bitmap, const char* path)
         goto png_create_info_struct_failed;
     }
 
-
     if (setjmp(png_jmpbuf(png_ptr))) {
         goto png_failure;
     }
@@ -97,11 +96,9 @@ static int save_png_to_file(bitmap_t* bitmap, const char* path)
         }
     }
 
-
     png_init_io(png_ptr, fp);
     png_set_rows(png_ptr, info_ptr, row_pointers);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-
 
     status = 0;
 
@@ -119,7 +116,6 @@ fopen_failed:
     return status;
 }
 
-
 static int pix(int value, int max)
 {
     if (value < 0)
@@ -129,20 +125,46 @@ static int pix(int value, int max)
 
 //
 
-void DrawAndSave(pair arr[], int n, colour col[]) // массив, колво
+void DrawAndSave(pair arr[], int n, colour col[],int dot1,int dot2) // массив, колво
 {
     bitmap_t fruit;
     static int num=0;
     static int num1=0;
+    static int num2 = 0;
+    static sto = 0;
     fruit.width = 20*n;
     fruit.height = 20*n;
     fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
     int y;
     int x;
     int xx1 = 0;
+
+    for (y = 0; y < fruit.height; y++)        //столбики взаимодейтсвия
+    {
+        for (x = dot1*17; x < (dot1*17)+8; x++)
+        {
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 90;
+            pixel->blue = 90;
+            pixel->red = 90;
+            pixel->alpha = pix(50, 100);
+        }
+    }
+    for (y = 0; y < fruit.height; y++)
+    {
+        for (x = dot2 * 17; x < (dot2 * 17) + 8; x++)
+        {
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 90;
+            pixel->blue = 90;
+            pixel->red = 90;
+            pixel->alpha = pix(50, 100);
+        }
+    }
+
     for (int i = 0; i < n; i++)
     {
-        for (y =fruit.height - arr[i].val*4; y < fruit.height; y++)
+        for (y =fruit.height - arr[i].val*7; y < fruit.height; y++)
         {
             for (x = 0; x < 8; x++)
             {
@@ -160,31 +182,66 @@ void DrawAndSave(pair arr[], int n, colour col[]) // массив, колво
     const char* name[5];        //Сохранение 
     const char* surname[5];
     const char* frame[10];
+    const char* main[10];
     strcpy(frame, "frame");
     char png[] = { ".png" };
     name[0] = '0' + num;
     surname[0] = '0';
-   if (num > 9) 
+    main[0] = '0';
+    if (sto==100)
     {
-        num1++;
-        num = num -10;
+        num2++;
+        num1 = 0;
+        num = 0;
+        main[0] = '0' + num2;
         surname[0] = '0' + num1;
         name[0] = '0' + num;
-        strcat(surname, name);
-        strcat(surname, png);
-        strcat(frame, surname);
+        strcat(main, surname);
+        strcat(main, name);
+        strcat(main, png);
+        strcat(frame, main);
         save_png_to_file(&fruit, frame);
+        sto -= 100;
+    }
+  else if (num > 9) 
+    {
+        num1++;
+        num = 0;
+        surname[0] = '0' + num1;
+        name[0] = '0' + num;
+        main[0] = '0' + num2;
+        strcat(main, surname);
+        strcat(main, name);
+        strcat(main, png);
+        strcat(frame, main);
+        save_png_to_file(&fruit, frame);
+    }
+    else if (num1>9)
+    {
+       num2++;
+       num1 = 0;
+       main[0] = '0' + num2;
+       surname[0] = '0' + num1;
+       name[0] = '0' + num;
+       strcat(main, surname);
+       strcat(main, name);
+       strcat(main, png);
+       strcat(frame, main);
+       save_png_to_file(&fruit, frame);
     }
     else
     {
+       main[0] = '0' + num2;
        surname[0] = '0' + num1;
-        strcat(surname, name);
-        strcat(surname, png);
-        strcat(frame, surname);
-        save_png_to_file(&fruit, frame);
+       name[0] = '0' + num;
+       strcat(main, surname);
+       strcat(main, name);
+       strcat(main, png);
+       strcat(frame, main);
+       save_png_to_file(&fruit, frame);
     }
 
-    for (y = 0; y < fruit.height; y++)   //Чистим вилкой
+    for (y = 0; y < fruit.height; y++)   //Чистим экран
     {
         for (x = 0; x < fruit.width; x++)
         {
@@ -195,6 +252,7 @@ void DrawAndSave(pair arr[], int n, colour col[]) // массив, колво
         }
     }
     num++;
+    sto++;
 }
 
 void print_menu(int argc)
@@ -203,7 +261,7 @@ void print_menu(int argc)
     printf("General options :\n");
     printf("\t-n[--number](from 3 to 25)  Number of values to sort\n");
     printf("\t-p[--path]                  Path to directory for saving frames for animation\n");
-    printf("\t-o[--order]                 Demonstrate stability or not\n");
+    //printf("\t-o[--order]                 Demonstrate stability or not\n");
     printf("\t-h[--help]                  Show help\n");
 }
 
@@ -222,20 +280,18 @@ void FixStable(pair arr[], int n, colour col[])   //Проверка устой�
         {
             if (arr[i].val == arr[j].val && arr[i].key > arr[j].key)
             {
+                DrawAndSave(arr, n, col, i, j);
                 swap(&arr[i].val, &arr[j].val);
                 swap(&arr[i].key, &arr[j].key);
                 swap(&col[i].green, &col[j].green);
                 swap(&col[i].blue, &col[j].blue);
                 swap(&col[i].red, &col[j].red);
+                DrawAndSave(arr, n, col, i, j);
             }
         }
     }
 }
-/* Эта функция принимает последний элемент в качестве основного,
-помещает основной элемент  в правильное положение
- в отсортированном массиве, а все элементы
-что меньше (меньше, чем основной) слева
-от основного, а  большие элементы справа*/
+
 int partition(pair arr[], int l, int h, int n, colour col[])
 {
     int x = arr[h].val;
@@ -243,20 +299,22 @@ int partition(pair arr[], int l, int h, int n, colour col[])
     for (int j = l; j <= h - 1; j++) {
         if (arr[j].val <= x) {
             i++;
+            DrawAndSave(arr, n, col, i, j);
             swap(&arr[i].val, &arr[j].val);
             swap(&arr[i].key, &arr[j].key);
             swap(&col[i].green, &col[j].green);
             swap(&col[i].blue, &col[j].blue);
             swap(&col[i].red, &col[j].red);
-            DrawAndSave(arr, n, col);
+            DrawAndSave(arr, n, col,i,j);
         }
     }
+    DrawAndSave(arr, n, col, i + 1, h);
     swap(&arr[i + 1].val, &arr[h].val);
     swap(&arr[i + 1].key, &arr[h].key);
-    swap(&col[i+1].green, &col[h].green);
+    swap(&col[i + 1].green, &col[h].green);
     swap(&col[i + 1].blue, &col[h].blue);
     swap(&col[i + 1].red, &col[h].red);
-    DrawAndSave(arr, n, col);
+    DrawAndSave(arr, n, col,i+1,h);
     return (i + 1);
 }
 void quickSort(pair A[], int l, int h, int n,colour col[])   // l=0; h = n -1
@@ -267,12 +325,10 @@ void quickSort(pair A[], int l, int h, int n,colour col[])   // l=0; h = n -1
         quickSort(A, l, p - 1, n,col);
         quickSort(A, p + 1, h, n,col);
         FixStable(A, n, col);
-        DrawAndSave(A, n, col);
     }
 }
 int main(int argc, char* argv[])
 {
-
     printf("\n");
     if (argc == 1)
     {
@@ -292,7 +348,7 @@ int main(int argc, char* argv[])
             if (!strcmp(n_str, argv[i]) || !strcmp(number_str, argv[i]))
             {
                 n = atoi(argv[i + 1]);
-                if (n <= 1 || n > 100)
+                if (n <= 1 || n > 25)
                 {
                     printf("Provided n is not appropriate!\n ");
                     return 0;
@@ -327,8 +383,6 @@ int main(int argc, char* argv[])
         {
             col[i].red = 0;
         }
-
-       
         for (int i = 0; i < n; i++)
         {
             arr[i].val = (rand()%(n))+1;
