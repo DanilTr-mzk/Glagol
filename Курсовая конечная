@@ -1,0 +1,438 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
+
+#include <png.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+typedef struct  //структура для для
+{
+    int key;
+    int val;
+}pair;
+
+typedef struct  //структура для для
+{
+    int red;
+    int blue;
+    int green;
+}colour;
+
+/*  цвет */
+
+typedef struct {
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t alpha;
+} pixel_t;
+
+/* картинка */
+
+typedef struct {
+    pixel_t* pixels;
+    size_t width;
+    size_t height;
+} bitmap_t;
+
+static pixel_t* pixel_at(bitmap_t* bitmap, int x, int y)
+{
+    return bitmap->pixels + bitmap->width * y + x;
+}
+
+static int save_png_to_file(bitmap_t* bitmap, const char* path)
+{
+    FILE* fp;
+    png_structp png_ptr = NULL;
+    png_infop info_ptr = NULL;
+    size_t x, y;
+    png_byte** row_pointers = NULL;
+    int status = -1;
+    int pixel_size = 50;
+    int depth = 8;
+
+    fp = fopen(path, "wb");
+    if (!fp) {
+        goto fopen_failed;
+    }
+
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL) {
+        goto png_create_write_struct_failed;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+        goto png_create_info_struct_failed;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        goto png_failure;
+    }
+
+    png_set_IHDR(png_ptr,
+        info_ptr,
+        bitmap->width,
+        bitmap->height,
+        depth,
+        PNG_COLOR_TYPE_RGBA,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT);
+
+    row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte*));
+    for (y = 0; y < bitmap->height; ++y) {
+        png_byte* row =
+            png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * pixel_size);
+        row_pointers[y] = row;
+        for (x = 0; x < bitmap->width; ++x) {
+            pixel_t* pixel = pixel_at(bitmap, x, y);
+            *row++ = pixel->red;
+            *row++ = pixel->green;
+            *row++ = pixel->blue;
+            *row++ = pixel->alpha;
+        }
+    }
+
+    png_init_io(png_ptr, fp);
+    png_set_rows(png_ptr, info_ptr, row_pointers);
+    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+    status = 0;
+
+    for (y = 0; y < bitmap->height; y++) {
+        png_free(png_ptr, row_pointers[y]);
+    }
+    png_free(png_ptr, row_pointers);
+
+png_failure:
+png_create_info_struct_failed:
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+png_create_write_struct_failed:
+    fclose(fp);
+fopen_failed:
+    return status;
+}
+
+static int pix(int value, int max)
+{
+    if (value < 0)
+        return 0;
+    return (int)(256.0 * ((double)(value) / (double)max));
+}
+
+//
+
+void DrawAndSave(pair arr[], int n, colour col[],int dot1,int dot2) // массив, колво, точки которые сравниваются
+{
+    bitmap_t fruit;
+    static int num=0;
+    static int num1=0;
+    static int num2 = 0;
+    static sto = 0;
+    fruit.width = 20*n;
+    fruit.height = 20*n;
+    fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
+    int y;
+    int x;
+    int xx1 = 0;
+
+    for (y = 0; y < fruit.height; y++)        //столбики взаимодейтсвия
+    {
+        for (x = dot1*17; x < (dot1*17)+8; x++)
+        {
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 90;
+            pixel->blue = 90;
+            pixel->red = 90;
+            pixel->alpha = pix(50, 100);
+        }
+    }
+    for (y = 0; y < fruit.height; y++)
+    {
+        for (x = dot2 * 17; x < (dot2 * 17) + 8; x++)
+        {
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 90;
+            pixel->blue = 90;
+            pixel->red = 90;
+            pixel->alpha = pix(50, 100);
+        }
+    }
+
+    for (int i = 0; i < n; i++) //Рисует
+    {
+        for (y =fruit.height - arr[i].val*7; y < fruit.height; y++)
+        {
+            for (x = 0; x < 8; x++)
+            {
+                x += xx1;
+                pixel_t* pixel = pixel_at(&fruit, x, y);
+                pixel->green = col[i].green;
+                pixel->blue = col[i].blue;
+                pixel->red = col[i].red;
+                pixel->alpha = pix(99, 100);
+                x = x - xx1;
+            }
+        }
+        xx1 += 17;
+    }
+    const char* name[5];        //Сохранение 
+    const char* surname[5];
+    const char* frame[10];
+    const char* main[10];
+    strcpy(frame, "frame");
+    char png[] = { ".png" };
+    name[0] = '0' + num;
+    surname[0] = '0';
+    main[0] = '0';
+    if (sto==100)
+    {
+        num2++;
+        num1 = 0;
+        num = 0;
+        main[0] = '0' + num2;
+        surname[0] = '0' + num1;
+        name[0] = '0' + num;
+        strcat(main, surname);
+        strcat(main, name);
+        strcat(main, png);
+        strcat(frame, main);
+        save_png_to_file(&fruit, frame);
+        sto -= 100;
+    }
+  else if (num > 9) 
+    {
+        num1++;
+        num = 0;
+        surname[0] = '0' + num1;
+        name[0] = '0' + num;
+        main[0] = '0' + num2;
+        strcat(main, surname);
+        strcat(main, name);
+        strcat(main, png);
+        strcat(frame, main);
+        save_png_to_file(&fruit, frame);
+    }
+    else if (num1>9)
+    {
+       num2++;
+       num1 = 0;
+       main[0] = '0' + num2;
+       surname[0] = '0' + num1;
+       name[0] = '0' + num;
+       strcat(main, surname);
+       strcat(main, name);
+       strcat(main, png);
+       strcat(frame, main);
+       save_png_to_file(&fruit, frame);
+    }
+    else
+    {
+       main[0] = '0' + num2;
+       surname[0] = '0' + num1;
+       name[0] = '0' + num;
+       strcat(main, surname);
+       strcat(main, name);
+       strcat(main, png);
+       strcat(frame, main);
+       save_png_to_file(&fruit, frame);
+    }
+
+    for (y = 0; y < fruit.height; y++)   //Чистим экран
+    {
+        for (x = 0; x < fruit.width; x++)
+        {
+            pixel_t* pixel = pixel_at(&fruit, x, y);
+            pixel->green = 255;
+            pixel->blue = 255;
+            pixel->red = 255;
+        }
+    }
+    num++;
+    sto++;
+}
+
+void print_menu(int argc)
+{
+    printf("Program for quick sort visualization.\n");
+    printf("General options :\n");
+    printf("\t-n[--number](from 3 to 25)  Number of values to sort\n");
+    printf("\t-p[--path]                  Path to directory for saving frames for animation\n");
+    //printf("\t-o[--order]                 Demonstrate stability or not\n");
+    printf("\t-h[--help]                  Show help\n");
+}
+
+void swap(int* a, int* b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void FixStable(pair arr[], int n, colour col[])   //Проверка устойчивости
+{
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            if (arr[i].val == arr[j].val && arr[i].key > arr[j].key)
+            {
+                DrawAndSave(arr, n, col, i, j);
+                swap(&arr[i].val, &arr[j].val);
+                swap(&arr[i].key, &arr[j].key);
+                swap(&col[i].green, &col[j].green);
+                swap(&col[i].blue, &col[j].blue);
+                swap(&col[i].red, &col[j].red);
+                DrawAndSave(arr, n, col, i, j);
+            }
+        }
+    }
+}
+
+int partition(pair arr[], int l, int h, int n, colour col[])
+{
+    int x = arr[h].val;
+    int i = (l - 1);
+    for (int j = l; j <= h - 1; j++) {
+        if (arr[j].val <= x) {
+            i++;
+            DrawAndSave(arr, n, col, i, j);
+            swap(&arr[i].val, &arr[j].val);
+            swap(&arr[i].key, &arr[j].key);
+            swap(&col[i].green, &col[j].green);
+            swap(&col[i].blue, &col[j].blue);
+            swap(&col[i].red, &col[j].red);
+            DrawAndSave(arr, n, col,i,j);
+        }
+    }
+    DrawAndSave(arr, n, col, i + 1, h);
+    swap(&arr[i + 1].val, &arr[h].val);
+    swap(&arr[i + 1].key, &arr[h].key);
+    swap(&col[i + 1].green, &col[h].green);
+    swap(&col[i + 1].blue, &col[h].blue);
+    swap(&col[i + 1].red, &col[h].red);
+    DrawAndSave(arr, n, col,i+1,h);
+    return (i + 1);
+}
+void quickSort(pair A[], int l, int h, int n,colour col[])   // l=0; h = n -1
+{
+    if (l < h)
+    {
+        int p = partition(A, l, h, n, col);
+        quickSort(A, l, p - 1, n,col);
+        quickSort(A, p + 1, h, n,col);
+        FixStable(A, n, col);
+    }
+}
+int main(int argc, char* argv[])
+{
+    printf("\n");
+    if (argc == 1)
+    {
+        print_menu(argc);
+    }
+    else
+    {
+        char help_str[] = "--help";
+        char h_str[] = "-h";
+        char number_str[] = "--number";
+        char n_str[] = "-n";
+        char path_str[] = "--path";
+        char p_str[] = "-p";
+        int i, n = -1;
+        for (i = 0; i < argc - 1; i++)
+        {
+            if (!strcmp(n_str, argv[i]) || !strcmp(number_str, argv[i]))
+            {
+                n = atoi(argv[i + 1]);
+                if (n <= 1 || n > 25)
+                {
+                    printf("Provided n is not appropriate!\n ");
+                    return 0;
+                }
+                else
+                {
+                    printf("n = %d is set!\nArray is filled with random numbers from 1 to %d\n", n,n);
+                }
+                if (n < 0)
+                {
+                    printf("n is not set!\n");
+                    return 0;
+                }
+            }
+        }
+        srand(time(NULL));
+        bitmap_t fruit;
+        fruit.width = 20 * n;
+        fruit.height = 20 * n;
+        fruit.pixels = calloc(sizeof(pixel_t), fruit.width * fruit.height);
+        pair* arr = (pair*)malloc(n * sizeof(pair));
+        colour* col = (colour*)malloc(n * sizeof(colour));
+        for (int i = 0; i < n; i++)
+        {
+            col[i].green = 100;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            col[i].blue = 0;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            col[i].red = 0;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            arr[i].val = (rand()%(n))+1;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            arr[i].key = i;
+        }
+        int green = 0;
+        int blue = 100;
+        int red = 100;
+        for (int i = 0; i < n - 1; i++)
+        {
+            if (green == 100)
+            {
+                green = 0;
+                blue = 100;
+                red = 100;
+            }
+            for (int j = i + 1; j < n; j++)
+            {
+                if (arr[i].val == arr[j].val)
+                {
+                    col[i].green = green;
+                    col[i].blue = blue;
+                    col[j].green = green;
+                    col[j].red = red;
+                    
+                }     
+            }
+            green += 15;
+            red -= 15;
+            blue -= 15;
+        }
+        quickSort(arr, 0, n - 1, n,col);
+        free(arr);
+        for (i = 0; i < argc; i++)
+        {
+            if (!strcmp(p_str, argv[i]) || !strcmp(path_str, argv[i]))
+            {
+                printf("Path: C:/Users/komp/source/repos/Project2/Debug\n");
+            }
+        }
+        for (i = 0; i < argc; i++)
+        {
+            if (!strcmp(h_str, argv[i]) || !strcmp(help_str, argv[i]))
+            {
+                printf("Course work\nTroshkov 1141\nThis is a random number sorting visualization program\n");
+                printf("Your input should look like: Project2.exe -n 5\n");
+            }
+        }
+    }
+}
