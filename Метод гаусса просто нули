@@ -1,0 +1,65 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int main()
+{
+    srand(time(NULL));
+    int arr[5][5];
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            arr[i][j] = rand() % 15;
+        }
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            printf("%d ", arr[i][j]);
+        }
+        printf("\n");
+    }
+    int n = 5;
+    int h = 1;
+    int m = 0;
+    int minus = 0;
+    int schet=1;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = h; j < n; j++)
+        {
+            if (arr[h][m] != 0)
+            {
+
+                    minus = arr[h][m];
+                    for (int ii=m; ii < n; ii++)
+                    {
+                        arr[h][ii] = arr[h][ii] - minus;
+                    }
+                
+            }
+            h++;
+        }
+        schet++;
+        h = schet;
+        m++;
+    }
+    printf("\n");
+    printf("\n");
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            printf("%d ", arr[i][j]);
+        }
+        printf("\n");
+    }
+   
+ }
